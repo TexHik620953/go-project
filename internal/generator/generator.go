@@ -10,11 +10,15 @@ import (
 )
 
 func (c *GenerationContext) GenerateProject() error {
+	err := os.MkdirAll(filepath.Dir(c.config.TargetDir), 0666)
+	if err != nil {
+		fmt.Errorf("failed to create dir: %v", err)
+	}
 	// Init project
 	cmd := exec.Command("go", "mod", "init", c.config.PackageName)
 	cmd.Dir = c.config.TargetDir
 	cmd.Stdout = os.Stdout
-	err := cmd.Run()
+	err = cmd.Run()
 	if err != nil {
 		return fmt.Errorf("failed to go mod init: %v", err)
 	}
