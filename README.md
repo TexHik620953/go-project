@@ -12,6 +12,6 @@ go-project is a lightweight tool for creating project micro-service template wit
 ## Installation
 
 ```bash
-go install github.com/TexHik620953/go-project
+go install github.com/TexHik620953/go-project/cmd/project@latest
 project
 ```
