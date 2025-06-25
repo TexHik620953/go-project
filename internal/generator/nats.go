@@ -56,7 +56,7 @@ func (c *GenerationContext) AddNats(params NatsParams) {
 
 	if params.UseNatsEvents {
 		c.Installations = append(c.Installations, "github.com/TexHik620953/natsevent-go")
-		c.AppImports = append(c.AppImports, "github.com/TexHik620953/natsevent-go")
+		c.AppImports = append(c.AppImports, "github.com/TexHik620953/natsevent-go", "github.com/nats-io/nats.go/jetstream")
 
 		c.ServiceDeclarations = append(c.ServiceDeclarations,
 			"natsEvent natsevent.NatsEventService",
