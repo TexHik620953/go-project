@@ -1,5 +1,7 @@
 package generator
 
+import "strings"
+
 type NatsParams struct {
 	UseNatsRPC bool
 }
@@ -30,9 +32,25 @@ func (c *GenerationContext) AddNats(params NatsParams) {
 		c.ServiceDeclarations = append(c.ServiceDeclarations, "natsRpc natsrpc.NatsRPC")
 
 		c.ServiceBuilders = append(c.ServiceBuilders, `	{
-			// Nats rpc handler declaration
-			app.natsRpc = natsrpc.New(app.natsClient, natsrpc.WithBaseName(app.cfg.AppName))
-		}`)
+		// Nats rpc handler declaration
+		app.natsRpc = natsrpc.New(app.natsClient, natsrpc.WithBaseName(app.cfg.AppName))
+		app.natsRpcRouter()
+	}`)
+		c.ServiceStartups = append(c.ServiceStartups, `	{
+		err := app.natsRpc.StartWithContext(context.Background())
+		if err != nil {
+			return err
+		}
+	}`)
+		{
+			ab := strings.Builder{}
+			ab.WriteString("func (app *Application ) natsRpcRouter() {\n")
+			ab.WriteString("\tapp.natsRpc.AddRPC(\"health\", func(c natsrpc.NatsRPCContext) error {\n")
+			ab.WriteString("\t\treturn c.RespondJSON(map[string]string{\"status\": \"OK\"})\n")
+			ab.WriteString("\t})\n")
+			ab.WriteString("}")
+			c.AppFuncs = append(c.AppFuncs, ab.String())
+		}
 	}
 
 }

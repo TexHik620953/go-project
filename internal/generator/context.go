@@ -32,9 +32,9 @@ var defaultReplacements = map[string]TemplateReplaceFunc{
 	"@LAUNCHENVS@": func(ctx *GenerationContext, template, fileName string) string {
 		var b strings.Builder
 		for _, field := range ctx.ConfigFields {
-			b.WriteString(fmt.Sprintf("\"%s\": \"%s\",\n", field.EnvName, field.Default))
+			b.WriteString(fmt.Sprintf("\t\t\t\t\"%s\": \"%s\",\n", field.EnvName, field.Default))
 		}
-		b.WriteString(fmt.Sprintf("\"APP_NAME\": \"dev-local-%s\"", ctx.config.PackageName))
+		b.WriteString(fmt.Sprintf("\t\t\t\t\"APP_NAME\": \"dev-local-%s\"", ctx.config.PackageName))
 		return b.String()
 	},
 	"@SERVICEDECL@": func(ctx *GenerationContext, template, fileName string) string {
@@ -54,7 +54,7 @@ var defaultReplacements = map[string]TemplateReplaceFunc{
 	"@STARTAPP@": func(ctx *GenerationContext, template, fileName string) string {
 		var b strings.Builder
 		for _, v := range ctx.ServiceStartups {
-			b.WriteString(v)
+			b.WriteString(fmt.Sprintf("%s\n", v))
 		}
 		return b.String()
 	},
