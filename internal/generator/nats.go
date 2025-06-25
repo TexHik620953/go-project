@@ -3,7 +3,8 @@ package generator
 import "strings"
 
 type NatsParams struct {
-	UseNatsRPC bool
+	UseNatsRPC    bool
+	UseNatsEvents bool
 }
 
 func (c *GenerationContext) AddNats(params NatsParams) {
@@ -53,4 +54,41 @@ func (c *GenerationContext) AddNats(params NatsParams) {
 		}
 	}
 
+	if params.UseNatsEvents {
+		c.Installations = append(c.Installations, "github.com/TexHik620953/natsevent-go")
+		c.AppImports = append(c.AppImports, "github.com/TexHik620953/natsevent-go")
+
+		c.ServiceDeclarations = append(c.ServiceDeclarations,
+			"natsEvent natsevent.NatsEventService",
+			"jetStream jetstream.JetStream",
+		)
+
+		c.ServiceBuilders = append(c.ServiceBuilders, `	{
+		// Nats JetStream declaration
+		var err error
+		app.jetStream, err = jetstream.New(nc)
+		if err != nil {
+			return nil, fmt.Errorf("failed to connect jetstream: %v", err)
+		}
+
+		// Nats event handler declaration
+		app.natsEvent = natsevent.New(app.jetStream, natsevent.WithSubjectRoot("events"))
+		app.natsEventRouter()
+	}`)
+
+		{
+			ab := strings.Builder{}
+			ab.WriteString("func (app *Application ) natsEventRouter() {\n")
+
+			ab.WriteString("}")
+			c.AppFuncs = append(c.AppFuncs, ab.String())
+		}
+
+		c.ServiceStartups = append(c.ServiceStartups, `	{
+		err := app.natsEvent.StartWithContext(app.ctx)
+		if err != nil {
+			return err
+		}
+	}`)
+	}
 }
